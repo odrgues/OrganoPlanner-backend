@@ -2,7 +2,8 @@ const Tarefa = require("../models/tarefa");
 
 exports.getTarefas = async (req, res) => {
   try {
-    const tarefas = await Tarefa.find();
+    // Garante que o campo concluida sempre é retornado
+    const tarefas = await Tarefa.find({}, "-__v");
     res.json(tarefas);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -12,7 +13,6 @@ exports.getTarefas = async (req, res) => {
 exports.createTarefa = async (req, res) => {
   try {
     const { titulo, descricao, imagemUrl, categoria, concluida } = req.body;
-    // Permite criar tarefa já concluída, se enviado
     const tarefa = new Tarefa({
       titulo,
       descricao,
@@ -21,7 +21,8 @@ exports.createTarefa = async (req, res) => {
       concluida,
     });
     await tarefa.save();
-    res.status(201).json(tarefa);
+    // Retorna a tarefa criada, incluindo concluida
+    res.status(201).json(tarefa.toObject({ versionKey: false }));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -30,23 +31,23 @@ exports.createTarefa = async (req, res) => {
 exports.updateTarefa = async (req, res) => {
   try {
     const { id } = req.params;
-    // Remove _id do body se vier do frontend
     const update = {};
     if (req.body.titulo !== undefined) update.titulo = req.body.titulo;
     if (req.body.descricao !== undefined) update.descricao = req.body.descricao;
     if (req.body.imagemUrl !== undefined) update.imagemUrl = req.body.imagemUrl;
     if (req.body.categoria !== undefined) update.categoria = req.body.categoria;
     if (req.body.concluida !== undefined) update.concluida = req.body.concluida;
-    // Garante que _id não será enviado para o update
     if (update._id) delete update._id;
     const tarefa = await Tarefa.findByIdAndUpdate(id, update, {
       new: true,
       runValidators: true,
+      projection: "-__v",
     });
     if (!tarefa) {
       return res.status(404).json({ error: "Tarefa não encontrada" });
     }
-    res.json(tarefa);
+    // Retorna a tarefa atualizada, incluindo concluida
+    res.json(tarefa.toObject({ versionKey: false }));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -71,12 +72,12 @@ exports.marcarComoConcluida = async (req, res) => {
     const tarefa = await Tarefa.findByIdAndUpdate(
       id,
       { concluida: true },
-      { new: true }
+      { new: true, projection: "-__v" }
     );
     if (!tarefa) {
       return res.status(404).json({ error: "Tarefa não encontrada" });
     }
-    res.json(tarefa);
+    res.json(tarefa.toObject({ versionKey: false }));
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
