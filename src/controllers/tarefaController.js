@@ -23,13 +23,17 @@ exports.createTarefa = async (req, res) => {
 exports.updateTarefa = async (req, res) => {
   try {
     const { id } = req.params;
-    // Inclui o campo concluida na atualização
-    const { titulo, descricao, imagemUrl, categoria, concluida } = req.body;
-    const tarefa = await Tarefa.findByIdAndUpdate(
-      id,
-      { titulo, descricao, imagemUrl, categoria, concluida },
-      { new: true, runValidators: true }
-    );
+    // Atualiza apenas os campos enviados no body
+    const update = {};
+    if (req.body.titulo !== undefined) update.titulo = req.body.titulo;
+    if (req.body.descricao !== undefined) update.descricao = req.body.descricao;
+    if (req.body.imagemUrl !== undefined) update.imagemUrl = req.body.imagemUrl;
+    if (req.body.categoria !== undefined) update.categoria = req.body.categoria;
+    if (req.body.concluida !== undefined) update.concluida = req.body.concluida;
+    const tarefa = await Tarefa.findByIdAndUpdate(id, update, {
+      new: true,
+      runValidators: true,
+    });
     if (!tarefa) {
       return res.status(404).json({ error: "Tarefa não encontrada" });
     }
