@@ -39,7 +39,6 @@ exports.updateTarefa = async (req, res) => {
     const tarefa = await Tarefa.findByIdAndUpdate(id, update, {
       new: true,
       runValidators: true,
-      projection: "-__v",
     });
     if (!tarefa) {
       return res.status(404).json({ error: "Tarefa não encontrada" });
@@ -69,7 +68,7 @@ exports.marcarComoConcluida = async (req, res) => {
     const tarefa = await Tarefa.findByIdAndUpdate(
       id,
       { concluida: true },
-      { new: true, projection: "-__v" }
+      { new: true, runValidators: true }
     );
     if (!tarefa) {
       return res.status(404).json({ error: "Tarefa não encontrada" });
