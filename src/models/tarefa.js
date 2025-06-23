@@ -6,6 +6,7 @@ const tarefaSchema = new mongoose.Schema(
     descricao: { type: String, required: true },
     imagemUrl: { type: String, required: true },
     categoria: { type: String, required: true },
+    concluida: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

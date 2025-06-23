@@ -6,6 +6,7 @@ const Tarefa = require("../models/tarefa");
 router.get("/", tarefaController.getTarefas);
 router.post("/", tarefaController.createTarefa);
 router.put("/:id", tarefaController.updateTarefa);
+router.patch("/:id/concluir", tarefaController.marcarComoConcluida);
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
